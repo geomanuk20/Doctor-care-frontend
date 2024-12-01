@@ -1,16 +1,23 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logodc.png";
-import profile_pic from "../assets/profile_pic.png";
+import logo_mob from '../assets/864b8e520a3c45608015284354fa300f-free.png'
 import dropdown_icon from "../assets/dropdown_icon.svg";
 import menu_icon from '../assets/menu_icon.svg';
 import cross_icon from '../assets/cross_icon.png'
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [dropshowMenu,setDropShowMenu] = useState(false)
   const [showMenu, setShowMenu] = useState(false);
-  const [token, setToken] = useState(true);
+  const {token ,setToken,userData} = useContext(AppContext)
+  const logout = () =>{
+    setToken(false)
+    localStorage.removeItem("token")
+    toast.success("Logged out successfully!");
+  }
 
   return (
     <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-gray-400">
@@ -55,12 +62,12 @@ const Navbar = () => {
 
       {/* User Profile or Login Button */}
       <div className="flex items-center gap-4">
-        {token ? (
+        {token && userData ? (
           <div
             className="flex items-center gap-2 cursor-pointer relative group"
             onClick={() => setDropShowMenu(!dropshowMenu)}
           >
-            <img className="w-8 rounded-full" src={profile_pic} alt="Profile" />
+            <img className="w-8 rounded-full" src={userData.image} alt="Profile" />
             <img className="w-2.5" src={dropdown_icon} alt="Dropdown" />
 
             {/* Dropdown Menu */}
@@ -82,7 +89,7 @@ const Navbar = () => {
                   <li
                     className="py-2 px-4 hover:bg-gray-100 cursor-pointer text-red-600 hover:font-bold"
                     onClick={() => {
-                      setToken(false); // Mock logout
+                      logout(); // Mock logout
                       navigate("/");
                     }}
                   >
@@ -103,8 +110,8 @@ const Navbar = () => {
         <img onClick={() => setShowMenu(true)} className="w-6 md:hidden" src={menu_icon} alt="Menu Icon" />
 
         <div className={`${showMenu ? 'fixed w-2/3' : "h-0 w-0"} md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-none`}>
-          <div className="flex items-center justify-between px-5 py-6">
-            <img className="w-24" src={logo} alt="Logo" />
+          <div className="flex items-center justify-between px-5 py-6 bg-[#00B1AF]">
+            <img className="w-auto h-24" src={logo_mob} alt="Logo"/>
             <img className="w-7 transition-colors" onClick={() => setShowMenu(false)} src={cross_icon} alt="Close Menu" />
           </div>
           <ul className="flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium">
@@ -145,6 +152,7 @@ const Navbar = () => {
               <li>CONTACT</li>
             </NavLink>
           </ul>
+          <p className="flex items-center justify-center pt-56">doctorcare&copy;2024</p>
         </div>
       </div>
     </div>

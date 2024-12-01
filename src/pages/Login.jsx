@@ -1,6 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 
 const Login = () => {
+  const { backendUrl, setToken } = useContext(AppContext);
+  const navigate = useNavigate();
+
   const [state, setState] = useState('Sign Up');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -8,7 +16,27 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    // Handle form submission logic
+
+    try {
+      const endpoint = state === "Sign Up" ? "/api/user/register" : "/api/user/login";
+      const payload = state === "Sign Up" ? { name, email, password } : { email, password };
+
+      const { data } = await axios.post(`${backendUrl}${endpoint}`, payload);
+
+      console.log("Response Data:", data); // Debugging line
+
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+        setToken(data.token); // Use setToken correctly
+        toast.success(data.message ||(state === "Sign Up" ? "Account created successfully!" : "Logged in successfully!"));
+        navigate("/")
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(error.response?.data?.message || "An error occurred.");
+    }
   };
 
   return (
